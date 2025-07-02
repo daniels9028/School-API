@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -57,5 +58,15 @@ Route::middleware('auth:api')->group(function () {
 
         Route::put('lessons/{lesson}', [LessonController::class, 'update']);
         Route::delete('lessons/{lesson}', [LessonController::class, 'destroy']);
+    });
+
+    Route::middleware('permission:manage quizzes')->group(function () {
+        Route::prefix('courses/{course}')->group(function () {
+            Route::get('quizzes', [QuizController::class, 'index']);
+            Route::post('quizzes', [QuizController::class, 'store']);
+        });
+
+        Route::put('quizzes/{quiz}', [QuizController::class, 'update']);
+        Route::delete('quizzes/{quiz}', [QuizController::class, 'destroy']);
     });
 });
