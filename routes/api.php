@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\ChoiceController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
@@ -79,5 +80,15 @@ Route::middleware('auth:api')->group(function () {
 
         Route::put('questions/{question}', [QuestionController::class, 'update']);
         Route::delete('questions/{question}', [QuestionController::class, 'destroy']);
+    });
+
+    Route::middleware('permission:manage choices')->group(function () {
+        Route::prefix('questions/{question}')->group(function () {
+            Route::get('choices', [ChoiceController::class, 'index']);
+            Route::post('choices', [ChoiceController::class, 'store']);
+        });
+
+        Route::put('choices/{choice}', [ChoiceController::class, 'update']);
+        Route::delete('choices/{choice}', [ChoiceController::class, 'destroy']);
     });
 });
