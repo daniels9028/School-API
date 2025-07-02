@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Question extends Model
 {
-    protected $fillable = ['quiz_id', 'question_text', 'type', 'created_by'];
+    use HasFactory;
+
+    protected $fillable = ['quiz_id', 'question_text', 'type', 'answer', 'created_by'];
 
     public function quiz()
     {

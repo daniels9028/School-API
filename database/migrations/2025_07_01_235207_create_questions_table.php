@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('quiz_id')->constrained()->onDelete('cascade');
             $table->text('question_text');
             $table->enum('type', ['multiple_choice', 'essay']);
-            $table->foreignId('created_by')->constrained('users');
+            $table->text('answer')->nullable();
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
