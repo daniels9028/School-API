@@ -93,13 +93,12 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('choices/{choice}', [ChoiceController::class, 'destroy']);
     });
 
-    Route::middleware('permission:manage quiz submissions')->group(function () {
-        Route::prefix('quizzes/{quiz}')->group(function () {
-            Route::post('submit', [QuizSubmissionController::class, 'submit']);
-            Route::get('submissions', [QuizSubmissionController::class, 'index']);
-        });
-
-        Route::get('/quiz-submissions', [QuizSubmissionController::class, 'quizSubmissions']);
-        Route::get('quiz-submissions/{quizSubmission}', [QuizSubmissionController::class, 'show']);
+    Route::prefix('quizzes/{quiz}')->group(function () {
+        Route::post('submit', [QuizSubmissionController::class, 'submit']);
+        Route::get('submissions', [QuizSubmissionController::class, 'index']);
+        Route::get('submissions/summary', [QuizSubmissionController::class, 'summary'])->middleware('permission:view analytics');
     });
+
+    Route::get('/quiz-submissions', [QuizSubmissionController::class, 'quizSubmissions']);
+    Route::get('quiz-submissions/{quizSubmission}', [QuizSubmissionController::class, 'show']);
 });

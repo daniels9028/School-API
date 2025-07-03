@@ -73,4 +73,16 @@ class QuizSubmissionService
 
         return $quizSubmission->load('quiz');
     }
+
+    public function getQuizSummary(Quiz $quiz)
+    {
+        $total = $quiz->submissions()->count();
+
+        $average = $quiz->submissions()->avg('score');
+
+        return [
+            'total_submissions' => $total,
+            'average_score' => $average
+        ];
+    }
 }

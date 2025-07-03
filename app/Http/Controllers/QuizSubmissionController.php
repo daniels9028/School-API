@@ -67,4 +67,15 @@ class QuizSubmissionController extends Controller
             'data' => $detailSubmission
         ]);
     }
+
+    public function summary(Quiz $quiz)
+    {
+        $summary = $this->quizSubmissionService->getQuizSummary($quiz);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quiz summary retrieved successfully',
+            'data' => $summary
+        ]);
+    }
 }

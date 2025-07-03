@@ -25,11 +25,11 @@ class QuizSubmissionEndPointTest extends TestCase
     {
         parent::setUp();
 
-        Permission::create(['name' => 'manage quiz submissions']);
+        Permission::create(['name' => 'view analytics']);
 
         $adminRole = Role::create(['name' => 'admin', 'guard' => 'api']);
 
-        $adminRole->givePermissionTo('manage quiz submissions');
+        $adminRole->givePermissionTo('view analytics');
 
         $this->user = User::factory()->create();
         $this->user->assignRole('admin');
@@ -139,5 +139,32 @@ class QuizSubmissionEndPointTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonFragment(['quiz_id' => $quiz->id]);
+    }
+
+    #[Test]
+    public function can_get_quiz_summary(): void
+    {
+        $course = Course::factory()->create();
+
+        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
+
+        $submissions = QuizSubmission::factory()
+            ->count(10)
+            ->create([
+                'quiz_id' => $quiz->id,
+                'user_id' => $this->user->id
+            ]);
+
+        $total_submissions = $submissions->count();
+
+        $average_score = $submissions->average('score');
+
+        $response = $this->getJson("api/quizzes/{$quiz->id}/submissions/summary");
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('message', 'Quiz summary retrieved successfully')
+            ->assertJsonPath('data.total_submissions', $total_submissions)
+            ->assertJsonPath('data.average_score', $average_score);
     }
 }
