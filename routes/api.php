@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ChoiceController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\Master\CategoryController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizSubmissionController;
@@ -39,6 +40,10 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('permissions', PermissionController::class)
         ->middleware('permission:manage permissions')
         ->only(['index', 'store', 'update', 'destroy']);
+
+    // Categories Management
+    Route::apiResource('categories', CategoryController::class)
+        ->middleware('permission:manage categories');
 
     // Courses Management
     Route::middleware('permission:manage courses')->group(function () {
