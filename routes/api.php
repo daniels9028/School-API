@@ -9,6 +9,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizSubmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -90,5 +91,11 @@ Route::middleware('auth:api')->group(function () {
 
         Route::put('choices/{choice}', [ChoiceController::class, 'update']);
         Route::delete('choices/{choice}', [ChoiceController::class, 'destroy']);
+    });
+
+    Route::middleware('permission:manage quiz submissions')->group(function () {
+        Route::post('quizzes/{quiz}/submit', [QuizSubmissionController::class, 'submit']);
+        Route::get('quizzes/{quiz}/submissions', [QuizSubmissionController::class, 'index']);
+        Route::get('quiz-submissions/{quizSubmission}', [QuizSubmissionController::class, 'show']);
     });
 });
