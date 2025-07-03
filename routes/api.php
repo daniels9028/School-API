@@ -94,8 +94,12 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::middleware('permission:manage quiz submissions')->group(function () {
-        Route::post('quizzes/{quiz}/submit', [QuizSubmissionController::class, 'submit']);
-        Route::get('quizzes/{quiz}/submissions', [QuizSubmissionController::class, 'index']);
+        Route::prefix('quizzes/{quiz}')->group(function () {
+            Route::post('submit', [QuizSubmissionController::class, 'submit']);
+            Route::get('submissions', [QuizSubmissionController::class, 'index']);
+        });
+
+        Route::get('/quiz-submissions', [QuizSubmissionController::class, 'quizSubmissions']);
         Route::get('quiz-submissions/{quizSubmission}', [QuizSubmissionController::class, 'show']);
     });
 });

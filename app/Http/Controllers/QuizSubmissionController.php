@@ -27,15 +27,30 @@ class QuizSubmissionController extends Controller
         ], 200);
     }
 
+    // LIST SUBMISSIONS BY QUIZ
     public function index(Quiz $quiz)
     {
         $user = Auth::user();
 
-        $submissions = $this->quizSubmissionService->listByQuiz($quiz, $user);
+        $submissions = $this->quizSubmissionService->listSubmissionsByQuiz($quiz, $user);
 
         return response()->json([
             'success' => true,
-            'message' => 'Quiz submissions retrieved successfully',
+            'message' => 'List quiz submissions retrieved successfully',
+            'data' => $submissions
+        ]);
+    }
+
+    // LIST SUBMISSION BY USER
+    public function quizSubmissions()
+    {
+        $user = Auth::user();
+
+        $submissions = $this->quizSubmissionService->listSubmissionsByUser($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'List quiz submissions by user retrieved successfully',
             'data' => $submissions
         ]);
     }

@@ -81,13 +81,45 @@ class QuizSubmissionEndPointTest extends TestCase
 
         $quiz = Quiz::factory()->create(['course_id' => $course->id]);
 
-        $submission = QuizSubmission::factory()->create(['quiz_id' => $quiz->id, 'user_id' => $this->user->id]);
+        $submissions = QuizSubmission::factory()->count(5)->create(['quiz_id' => $quiz->id, 'user_id' => $this->user->id]);
 
         $response = $this->getJson("/api/quizzes/{$quiz->id}/submissions");
 
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonFragment(['quiz_id' => $quiz->id]);
+
+        foreach ($submissions as $submission) {
+            $this->assertDatabaseHas('quiz_submissions', [
+                'quiz_id' => $quiz->id,
+                'user_id' => $this->user->id,
+                'score' => $submission->score,
+            ]);
+        }
+    }
+
+    #[Test]
+    public function can_list_submissions_by_user(): void
+    {
+        $course = Course::factory()->create();
+
+        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
+
+        $submissions = QuizSubmission::factory()->count(5)->create(['quiz_id' => $quiz->id, 'user_id' => $this->user->id]);
+
+        $response = $this->getJson("/api/quiz-submissions");
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonFragment(['quiz_id' => $quiz->id]);
+
+        foreach ($submissions as $submission) {
+            $this->assertDatabaseHas('quiz_submissions', [
+                'quiz_id' => $quiz->id,
+                'user_id' => $this->user->id,
+                'score' => $submission->score,
+            ]);
+        }
     }
 
     #[Test]

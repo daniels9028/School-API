@@ -53,9 +53,16 @@ class QuizSubmissionService
         }
     }
 
-    public function listByQuiz(Quiz $quiz, User $user)
+    public function listSubmissionsByQuiz(Quiz $quiz, User $user)
     {
         return $quiz->submissions()->where('user_id', $user->id)->get();
+    }
+
+    public function listSubmissionsByUser(User $user)
+    {
+        return QuizSubmission::with('quiz')
+            ->where('user_id', $user->id) // eager load quiz
+            ->get();
     }
 
     public function getDetailSubmission(QuizSubmission $quizSubmission, User $user): QuizSubmission
@@ -64,6 +71,6 @@ class QuizSubmissionService
             throw new \Exception('Unauthorized');
         }
 
-        return $quizSubmission;
+        return $quizSubmission->load('quiz');
     }
 }
