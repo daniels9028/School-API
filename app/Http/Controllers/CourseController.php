@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Course\AssignStudentRequest;
+use App\Http\Requests\Course\AssignTagsRequest;
 use App\Http\Requests\Course\AssignTeacherRequest;
 use App\Http\Requests\Course\StoreCourseRequest;
 use App\Http\Requests\Course\UpdateCourseRequest;
@@ -94,6 +95,20 @@ class CourseController extends Controller
             'data' => [
                 'course' => $course->title,
                 'students' => $course->students->pluck('name')
+            ]
+        ]);
+    }
+
+    public function assignTags(AssignTagsRequest $request, Course $course)
+    {
+        $course = $this->courseService->assignTags($course, $request->tag_ids);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tags assigned to course successfully',
+            'data' => [
+                'course' => $course->title,
+                'tags' => $course->tags->pluck('name')
             ]
         ]);
     }

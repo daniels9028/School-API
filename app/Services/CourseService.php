@@ -8,7 +8,14 @@ class CourseService
 {
     public function getAll()
     {
-        return Course::latest()->get();
+        return Course::with([
+            'category',
+            'tags',
+            'teachers',
+            'students'
+        ])
+            ->latest()
+            ->get();
     }
 
     public function store(array $data): Course
@@ -42,6 +49,13 @@ class CourseService
         $course->students()->sync($studentIds);
 
         return $course->fresh('students');
+    }
+
+    public function assignTags(Course $course, array $tags): Course
+    {
+        $course->tags()->sync($tags);
+
+        return $course->fresh('tags');
     }
 
     public function listTeachers(Course $course)

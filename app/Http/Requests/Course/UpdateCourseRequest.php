@@ -25,7 +25,10 @@ class UpdateCourseRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string']
+            'description' => ['nullable', 'string'],
+            'thumbnail' => ['nullable', 'string'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'status' => ['required', 'in:draft,published']
         ];
     }
 

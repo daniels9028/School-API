@@ -9,7 +9,17 @@ class Course extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'created_by'];
+    protected $fillable = ['title', 'description', 'thumbnail', 'category_id', 'status', 'created_by'];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'course_tag');
+    }
 
     public function teachers()
     {
@@ -21,6 +31,11 @@ class Course extends Model
     {
         return $this->belongsToMany(User::class, 'course_student', 'course_id', 'student_id')
             ->withTimestamps();
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function lessons()

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Master;
 
+use App\Models\Category;
 use App\Models\Course;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -45,11 +47,17 @@ class CourseEndpointTest extends TestCase
     }
 
     #[Test]
-    public function can_create_course_with_description(): void
+    public function can_create_course_with_description_and_thumbnail(): void
     {
+        $category = Category::factory()->create();
+
         $data = [
             'title' => fake()->name(),
-            'description' => fake()->text()
+            'description' => fake()->text(),
+            'thumbnail' => fake()->url(),
+            'category_id' => $category->id,
+            'status' => fake()->randomElement(['draft', 'published']),
+            'created_by' => User::factory(),
         ];
 
         $response = $this->postJson('api/courses', $data);
@@ -69,11 +77,15 @@ class CourseEndpointTest extends TestCase
     }
 
     #[Test]
-    public function can_create_course_without_description(): void
+    public function can_create_course_without_description_and_thumbnail(): void
     {
+        $category = Category::factory()->create();
+
         $data = [
             'title' => fake()->name(),
-            'description' => null,
+            'category_id' => $category->id,
+            'status' => fake()->randomElement(['draft', 'published']),
+            'created_by' => User::factory(),
         ];
 
         $response = $this->postJson('api/courses', $data);
@@ -82,12 +94,12 @@ class CourseEndpointTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Course created successfully')
             ->assertJsonPath('data.title', $data['title'])
-            ->assertJsonPath('data.description', $data['description'])
+            ->assertJsonPath('data.description', null)
             ->assertJsonPath('data.created_by', $this->user->id);
 
         $this->assertDatabaseHas('courses', [
             'title' => $data['title'],
-            'description' => $data['description'],
+            'description' => null,
             'created_by' => $this->user->id,
         ]);
     }
@@ -108,11 +120,16 @@ class CourseEndpointTest extends TestCase
     }
 
     #[Test]
-    public function can_update_course_with_description(): void
+    public function can_update_course_with_description_and_thumbnail(): void
     {
+        $category = Category::factory()->create();
+
         $data = [
             'title' => fake()->name(),
             'description' => fake()->text(),
+            'thumbnail' => fake()->url(),
+            'category_id' => $category->id,
+            'status' => fake()->randomElement(['draft', 'published']),
         ];
 
         $targetCourse = Course::factory()->create();
@@ -134,9 +151,12 @@ class CourseEndpointTest extends TestCase
     #[Test]
     public function can_update_course_without_description(): void
     {
+        $category = Category::factory()->create();
+
         $data = [
             'title' => fake()->name(),
-            'description' => null
+            'category_id' => $category->id,
+            'status' => fake()->randomElement(['draft', 'published']),
         ];
 
         $targetCourse = Course::factory()->create();
@@ -147,11 +167,11 @@ class CourseEndpointTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Course updated successfully')
             ->assertJsonPath('data.title', $data['title'])
-            ->assertJsonPath('data.description', $data['description']);
+            ->assertJsonPath('data.description', $targetCourse->description);
 
         $this->assertDatabaseHas('courses', [
             'title' => $data['title'],
-            'description' => $data['description']
+            'description' => $targetCourse->description
         ]);
     }
 
@@ -229,6 +249,29 @@ class CourseEndpointTest extends TestCase
 
         foreach ($students as $student) {
             $this->assertTrue($course->fresh()->students->contains($student));
+        }
+    }
+
+    #[Test]
+    public function can_assign_tags_to_course(): void
+    {
+        $course = Course::factory()->create();
+
+        $tags = Tag::factory()->count(5)->create();
+
+        $tagIds = $tags->pluck('id')->toArray();
+
+        $response = $this->postJson("api/courses/{$course->id}/assign-tags", [
+            'tag_ids' => $tagIds
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('message', 'Tags assigned to course successfully')
+            ->assertJsonFragment(['course' => $course->title]);
+
+        foreach ($tags as $tag) {
+            $this->assertTrue($course->fresh()->tags->contains($tag));
         }
     }
 

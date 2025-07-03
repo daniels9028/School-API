@@ -44,13 +44,13 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('permission:manage courses')->group(function () {
         Route::apiResource('courses', CourseController::class);
 
-        Route::post('courses/{course}/assign-teachers', [CourseController::class, 'assignTeachers']);
-
-        Route::post('courses/{course}/assign-students', [CourseController::class, 'assignStudents']);
-
-        Route::get('/courses/{course}/teachers', [CourseController::class, 'listTeachers']);
-
-        Route::get('/courses/{course}/students', [CourseController::class, 'listStudents']);
+        Route::prefix('courses/{course}')->group(function () {
+            Route::post('assign-teachers', [CourseController::class, 'assignTeachers']);
+            Route::post('assign-students', [CourseController::class, 'assignStudents']);
+            Route::post('assign-tags', [CourseController::class, 'assignTags']);
+            Route::get('teachers', [CourseController::class, 'listTeachers']);
+            Route::get('students', [CourseController::class, 'listStudents']);
+        });
     });
 
     Route::middleware('permission:manage lessons')->group(function () {
