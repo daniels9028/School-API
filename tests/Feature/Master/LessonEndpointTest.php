@@ -199,8 +199,6 @@ class LessonEndpointTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $user->givePermissionTo('manage lessons');
-
         $lesson = Lesson::factory()->create([]);
 
         $response = $this->actingAs($user, 'api')->postJson("/api/lessons/{$lesson->id}/complete");
@@ -218,8 +216,6 @@ class LessonEndpointTest extends TestCase
     public function can_unmark_lesson_completed()
     {
         $user = User::factory()->create();
-
-        $user->givePermissionTo('manage lessons');
 
         $lesson = Lesson::factory()->create([]);
 

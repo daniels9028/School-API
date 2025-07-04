@@ -69,13 +69,12 @@ Route::middleware('auth:api')->group(function () {
             Route::post('lessons', [LessonController::class, 'store']);
         });
 
-        Route::prefix('lessons/{lesson}')->group(function () {
-            Route::put('', [LessonController::class, 'update']);
-            Route::delete('', [LessonController::class, 'destroy']);
-            Route::post('complete', [LessonController::class, 'markCompleted']);
-            Route::post('uncomplete', [LessonController::class, 'unmarkCompleted']);
-        });
+        Route::put('lessons/{lesson}', [LessonController::class, 'update']);
+        Route::delete('lessons/{lesson}', [LessonController::class, 'destroy']);
     });
+
+    Route::post('/lessons/{lesson}/complete', [LessonController::class, 'markCompleted']);
+    Route::post('/lessons/{lesson}/uncomplete', [LessonController::class, 'unmarkCompleted']);
 
     Route::middleware('permission:manage quizzes')->group(function () {
         Route::prefix('courses/{course}')->group(function () {

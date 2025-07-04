@@ -13,7 +13,7 @@ class ChoiceResource extends JsonResource
         return [
             'id' => $this->id,
             'question_id' => $this->question_id,
-            'text' => $this->text,
+            'choice_text' => $this->choice_text,
             'is_correct' => $this->is_correct,
         ];
     }

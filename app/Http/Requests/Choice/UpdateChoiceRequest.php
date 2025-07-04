@@ -22,7 +22,7 @@ class UpdateChoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['required', 'string'],
+            'choice_text' => ['required', 'string'],
             'is_correct' => ['required', 'boolean']
         ];
     }

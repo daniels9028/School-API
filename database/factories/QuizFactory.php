@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Course;
 use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,6 +20,7 @@ class QuizFactory extends Factory
             'title' => $this->faker->unique()->name,
             'description' => $this->faker->paragraph(),
             'created_by' => User::factory(),
+            'course_id' => Course::factory()->create()
         ];
     }
 }

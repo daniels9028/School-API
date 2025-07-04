@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Choice;
+use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -15,8 +16,9 @@ class ChoiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'text' => $this->faker->sentence(),
-            'is_correct' => $this->faker->boolean()
+            'choice_text' => $this->faker->sentence(),
+            'is_correct' => $this->faker->boolean(),
+            'question_id' => Question::factory()->create()
         ];
     }
 }

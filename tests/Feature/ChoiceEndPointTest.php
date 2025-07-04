@@ -38,9 +38,7 @@ class ChoiceEndPointTest extends TestCase
     #[Test]
     public function can_list_choices_by_question(): void
     {
-        $course = Course::factory()->create();
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
+        $question = Question::factory()->create();
 
         $choices = Choice::factory()->count(5)->create(['question_id' => $question->id]);
 
@@ -53,7 +51,7 @@ class ChoiceEndPointTest extends TestCase
         foreach ($choices as $choice) {
             $this->assertDatabaseHas('choices', [
                 'question_id' => $question->id,
-                'text' => $choice->text,
+                'choice_text' => $choice->choice_text,
                 'is_correct' => $choice->is_correct,
             ]);
         }
@@ -62,12 +60,10 @@ class ChoiceEndPointTest extends TestCase
     #[Test]
     public function can_create_choice_by_question(): void
     {
-        $course = Course::factory()->create();
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
+        $question = Question::factory()->create();
 
         $data = [
-            'text' => fake()->sentence(),
+            'choice_text' => fake()->sentence(),
             'is_correct' => fake()->boolean()
         ];
 
@@ -76,11 +72,11 @@ class ChoiceEndPointTest extends TestCase
         $response->assertCreated()
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Choice created successfully')
-            ->assertJsonPath('data.text', $data['text'])
+            ->assertJsonPath('data.choice_text', $data['choice_text'])
             ->assertJsonPath('data.is_correct', $data['is_correct']);
 
         $this->assertDatabaseHas('choices', [
-            'text' => $data['text'],
+            'choice_text' => $data['choice_text'],
             'is_correct' => $data['is_correct'],
         ]);
     }
@@ -88,14 +84,10 @@ class ChoiceEndPointTest extends TestCase
     #[Test]
     public function can_update_choice_by_question(): void
     {
-        $course = Course::factory()->create();
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
-
-        $choice = Choice::factory()->create(['question_id' => $question->id]);
+        $choice = Choice::factory()->create();
 
         $data = [
-            'text' => fake()->sentence(),
+            'choice_text' => fake()->sentence(),
             'is_correct' => fake()->boolean()
         ];
 
@@ -104,11 +96,11 @@ class ChoiceEndPointTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Choice updated successfully')
-            ->assertJsonPath('data.text', $data['text'])
+            ->assertJsonPath('data.choice_text', $data['choice_text'])
             ->assertJsonPath('data.is_correct', $data['is_correct']);
 
         $this->assertDatabaseHas('choices', [
-            'text' => $data['text'],
+            'choice_text' => $data['choice_text'],
             'is_correct' => $data['is_correct'],
         ]);
     }
@@ -116,11 +108,7 @@ class ChoiceEndPointTest extends TestCase
     #[Test]
     public function can_delete_choice_by_question(): void
     {
-        $course = Course::factory()->create();
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
-        $question = Question::factory()->create(['quiz_id' => $quiz->id]);
-
-        $choice = Choice::factory()->create(['question_id' => $question->id]);
+        $choice = Choice::factory()->create();
 
         $response = $this->deleteJson("api/choices/{$choice->id}");
 
@@ -130,7 +118,7 @@ class ChoiceEndPointTest extends TestCase
             ->assertJsonPath('data', null);
 
         $this->assertDatabaseMissing('choices', [
-            'text' => $choice->text,
+            'choice_text' => $choice->choice_text,
             'is_correct' => $choice->is_correct,
         ]);
     }

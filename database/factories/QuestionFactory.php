@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Question;
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,6 +21,7 @@ class QuestionFactory extends Factory
             'type' => $this->faker->randomElement(['multiple_choice', 'essay']),
             'answer' => $this->faker->sentence(),
             'created_by' => User::factory(),
+            'quiz_id'  => Quiz::factory()->create()
         ];
     }
 }
