@@ -193,4 +193,44 @@ class LessonEndpointTest extends TestCase
             'content' => $lesson->content
         ]);
     }
+
+    #[Test]
+    public function can_mark_lesson_completed()
+    {
+        $user = User::factory()->create();
+
+        $user->givePermissionTo('manage lessons');
+
+        $lesson = Lesson::factory()->create([]);
+
+        $response = $this->actingAs($user, 'api')->postJson("/api/lessons/{$lesson->id}/complete");
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('lesson_completions', [
+            'lesson_id' => $lesson->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    #[Test]
+    public function can_unmark_lesson_completed()
+    {
+        $user = User::factory()->create();
+
+        $user->givePermissionTo('manage lessons');
+
+        $lesson = Lesson::factory()->create([]);
+
+        $response = $this->actingAs($user, 'api')->postJson("/api/lessons/{$lesson->id}/uncomplete");
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('lesson_completions', [
+            'lesson_id' => $lesson->id,
+            'user_id' => $user->id,
+        ]);
+    }
 }

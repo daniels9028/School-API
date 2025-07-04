@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,6 +20,7 @@ class LessonFactory extends Factory
             'title' => $this->faker->unique()->name,
             'content' => $this->faker->text,
             'created_by' => User::factory(),
+            'course_id' => Course::factory()->create()
         ];
     }
 }
