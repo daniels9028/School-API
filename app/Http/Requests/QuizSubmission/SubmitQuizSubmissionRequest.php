@@ -24,8 +24,7 @@ class SubmitQuizSubmissionRequest extends FormRequest
         return [
             'answers' => ['required', 'array'],
             'answers.*.question_id' => ['required', 'exists:questions,id'],
-            'answers.*.choice_id' => ['nullable', 'exists:choices,id'],
-            'answers.*.answer_text' => ['nullable', 'string']
+            'answers.*.answer' => ['required', 'string']
         ];
     }
 }

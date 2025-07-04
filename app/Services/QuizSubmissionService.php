@@ -6,6 +6,7 @@ use App\Models\Choice;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizSubmission;
+use App\Models\SubmissionAnswer;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use PDO;
@@ -17,36 +18,53 @@ class QuizSubmissionService
         DB::beginTransaction();
 
         try {
+            // Create submission
             $submission = QuizSubmission::create([
                 'quiz_id' => $quiz->id,
                 'user_id' => $user->id,
-                'score' => 0
+                'score' => 0 // default value
             ]);
 
-            $score = 0;
+            $totalQuestions = 0;
+            $totalScore = 0;
 
-            foreach ($answerData as $data) {
-                $question = Question::find($data['question_id']);
+            foreach ($answerData as $item) {
+                $question = Question::findOrFail($item['question_id']);
+                $userAnswer = $item['answer'];
 
-                $submission->answers()->create([
-                    'question_id' => $data['question_id'],
-                    'answer_text' => $data['answer_text'] ?? null,
-                    'choice_id' => $data['choice_id'] ?? null
+                $isCorrect = null;
+
+                if ($question->type === 'multiple_choice') {
+                    $isCorrect = $question->choices()
+                        ->where('choice_text', $userAnswer)
+                        ->where('is_correct', true)
+                        ->exists();
+                } else if ($question->type === 'essay') {
+                    $isCorrect = strtolower(trim($question->answer)) === strtolower(trim($userAnswer));
+                }
+
+                SubmissionAnswer::create([
+                    'quiz_submission_id' => $submission->id,
+                    'question_id' => $question->id,
+                    'answer' => $userAnswer,
+                    'is_correct' => $isCorrect,
                 ]);
 
-                // optional: auto calculate score for multiple_choice
-                if ($question->type == 'multiple_choice' && $data['choice_id']) {
-                    $selectedChoice = Choice::find($data['choice_id']);
-                    if ($selectedChoice->is_correct) {
-                        $score++;
-                    }
+                if ($isCorrect) {
+                    $totalScore++;
                 }
+
+                $totalQuestions++;
             }
+
+            // Hitung skor
+            $score = $totalQuestions > 0 ? ($totalScore / $totalQuestions) * 100 : 0;
 
             $submission->update(['score' => $score]);
 
             DB::commit();
-            return $submission;
+
+            return $submission->load('submissionAnswers.question');
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

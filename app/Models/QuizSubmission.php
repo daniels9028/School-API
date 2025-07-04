@@ -11,9 +11,9 @@ class QuizSubmission extends Model
 
     protected $fillable = ['quiz_id', 'user_id', 'score'];
 
-    public function answers()
+    public function submissionAnswers()
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(SubmissionAnswer::class);
     }
 
     public function quiz()

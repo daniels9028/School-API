@@ -39,39 +39,75 @@ class QuizSubmissionEndPointTest extends TestCase
     #[Test]
     public function student_can_submit_quiz(): void
     {
-        $course = Course::factory()->create();
+        $user = User::factory()->create();
 
-        $quiz = Quiz::factory()->create(['course_id' => $course->id]);
+        $quiz = Quiz::factory()->create();
 
-        $questions = Question::factory()->count(3)->create(['quiz_id' => $quiz->id]);
-
-        $choices = [];
-
-        foreach ($questions as $question) {
-            $choices[$question->id] = Choice::factory()->count(2)->create(['question_id' => $question->id]);
-        }
+        $questions = Question::factory()->count(5)->create([
+            'quiz_id' => $quiz->id,
+            'type' => 'multiple_choice'
+        ]);
 
         $payload = [
             'answers' => []
         ];
 
         foreach ($questions as $question) {
+            // Buat 2 choice, salah satunya benar
+            $correctChoice = Choice::factory()->create([
+                'question_id' => $question->id,
+                'choice_text' => 'Correct Answer',
+                'is_correct' => true,
+            ]);
+
+            Choice::factory()->create([
+                'question_id' => $question->id,
+                'choice_text' => 'Wrong Answer',
+                'is_correct' => false,
+            ]);
+
+            // Ambil choice_text dari yang benar
             $payload['answers'][] = [
                 'question_id' => $question->id,
-                'choice_id' => $choices[$question->id]->first()->id,
-                'answer_text' => null,
+                'answer' => $correctChoice->choice_text,
             ];
         }
 
         $response = $this
+            ->actingAs($user)
             ->postJson("/api/quizzes/{$quiz->id}/submit", $payload);
 
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Quiz submitted successfully')
-            ->assertJsonStructure(['data' => ['submission_id', 'score']]);
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'quiz_id',
+                    'user_id',
+                    'score',
+                    'submission_answers' => [
+                        ['id', 'question_id', 'answer', 'is_correct']
+                    ],
+                ],
+            ]);
 
-        $this->assertDatabaseHas('quiz_submissions', ['quiz_id' => $quiz->id, 'user_id' => $this->user->id]);
+        // Pastikan skor 100 (benar semua)
+        $this->assertEquals(100, $response->json('data.score'));
+
+        // Cek database
+        $this->assertDatabaseHas('quiz_submissions', [
+            'quiz_id' => $quiz->id,
+            'user_id' => $user->id,
+        ]);
+
+        foreach ($payload['answers'] as  $answer) {
+            $this->assertDatabaseHas('submission_answers', [
+                'quiz_submission_id' => $response->json('data.id'),
+                'question_id' => $answer['question_id'],
+                'answer' => $answer['answer'],
+            ]);
+        }
     }
 
     #[Test]

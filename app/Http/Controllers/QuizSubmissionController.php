@@ -21,8 +21,11 @@ class QuizSubmissionController extends Controller
             'success' => true,
             'message' => 'Quiz submitted successfully',
             'data' => [
-                'submission_id' => $submission->id,
-                'score' => $submission->score
+                'id' => $submission->id,
+                'quiz_id' => $quiz->id,
+                'user_id' => $request->user()->id,
+                'score' => $submission->score,
+                'submission_answers' => $submission->submissionAnswers,
             ]
         ], 200);
     }
