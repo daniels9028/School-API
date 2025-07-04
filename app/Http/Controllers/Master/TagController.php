@@ -7,7 +7,7 @@ use App\Http\Requests\Tag\StoreTagRequest;
 use App\Http\Requests\Tag\UpdateTagRequest;
 use App\Models\Tag;
 use App\Services\TagService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TagController extends Controller
 {
@@ -24,7 +24,10 @@ class TagController extends Controller
 
     public function store(StoreTagRequest $request)
     {
-        $tag = $this->tagService->store($request->validated());
+        $tag = $this->tagService->store([
+            'name' => $request['name'],
+            'slug' => Str::slug($request['name'], '-')
+        ]);
 
         return response()->json([
             'success' => true,
@@ -35,7 +38,10 @@ class TagController extends Controller
 
     public function update(UpdateTagRequest $request, Tag $tag)
     {
-        $udpatedTag = $this->tagService->update($tag, $request->validated());
+        $udpatedTag = $this->tagService->update($tag, [
+            'name' => $request['name'],
+            'slug' => Str::slug($request['name'], '-')
+        ]);
 
         return response()->json([
             'success' => true,

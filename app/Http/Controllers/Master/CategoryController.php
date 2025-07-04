@@ -26,7 +26,7 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->store([
             'name' => $request['name'],
-            'slug' => Str::slug($request['slug'], '-')
+            'slug' => Str::slug($request['name'], '-')
         ]);
 
         return response()->json([
@@ -40,7 +40,7 @@ class CategoryController extends Controller
     {
         $updatedCategory = $this->categoryService->update($category, [
             'name' => $request['name'],
-            'slug' => Str::slug($request['slug'], '-')
+            'slug' => Str::slug($request['name'], '-')
         ]);
 
         return response()->json([

@@ -8,6 +8,7 @@ use App\Http\Controllers\ChoiceController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\Master\CategoryController;
+use App\Http\Controllers\Master\TagController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuizSubmissionController;
@@ -44,6 +45,10 @@ Route::middleware('auth:api')->group(function () {
     // Categories Management
     Route::apiResource('categories', CategoryController::class)
         ->middleware('permission:manage categories');
+
+    // Tags Management
+    Route::apiResource('tags', TagController::class)
+        ->middleware('permission:manage tags');
 
     // Courses Management
     Route::middleware('permission:manage courses')->group(function () {
