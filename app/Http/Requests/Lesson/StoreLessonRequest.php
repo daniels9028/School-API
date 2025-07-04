@@ -25,7 +25,9 @@ class StoreLessonRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'content' => ['nullable', 'string']
+            'content' => ['nullable', 'string'],
+            'video_url' => 'nullable|url',
+            'order' => 'nullable|integer',
         ];
     }
 

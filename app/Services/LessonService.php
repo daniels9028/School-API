@@ -27,4 +27,14 @@ class LessonService
     {
         $lesson->delete();
     }
+
+    public function markCompleted(Lesson $lesson, int $userId): void
+    {
+        $lesson->completedByUsers()->syncWithoutDetaching([$userId]);
+    }
+
+    public function unmarkCompleted(Lesson $lesson, int $userId): void
+    {
+        $lesson->completedByUsers()->detach($userId);
+    }
 }

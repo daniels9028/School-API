@@ -20,7 +20,9 @@ class UpdateLessonRequest extends FormRequest
     {
         return [
             'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'content' => ['nullable', 'string']
+            'content' => ['nullable', 'string'],
+            'video_url' => 'nullable|url',
+            'order' => 'nullable|integer',
         ];
     }
 

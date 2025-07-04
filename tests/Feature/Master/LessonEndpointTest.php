@@ -48,13 +48,15 @@ class LessonEndpointTest extends TestCase
     }
 
     #[Test]
-    public function can_create_lesson_with_content(): void
+    public function can_create_lesson_with_content_video_url_and_order(): void
     {
         $course = Course::factory()->create();
 
         $data = [
             'title' => fake()->sentence(),
-            'content' => fake()->paragraph()
+            'content' => fake()->paragraph(),
+            'video_url' => fake()->url(),
+            'order' => fake()->numberBetween(0, 100),
         ];
 
         $response = $this->postJson("api/courses/{$course->id}/lessons", $data);
@@ -63,24 +65,27 @@ class LessonEndpointTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Lesson created successfully')
             ->assertJsonPath('data.title', $data['title'])
-            ->assertJsonPath('data.content', $data['content']);
+            ->assertJsonPath('data.content', $data['content'])
+            ->assertJsonPath('data.video_url', $data['video_url'])
+            ->assertJsonPath('data.order', $data['order']);
 
         $this->assertDatabaseHas('lessons', [
             'title' => $data['title'],
             'content' => $data['content'],
+            'video_url' => $data['video_url'],
+            'order' => $data['order'],
             'course_id' => $course->id,
             'created_by' => $this->user->id
         ]);
     }
 
     #[Test]
-    public function can_create_lesson_without_content(): void
+    public function can_create_lesson_without_content_video_url_and_order(): void
     {
         $course = Course::factory()->create();
 
         $data = [
             'title' => fake()->sentence(),
-            'content' => null
         ];
 
         $response = $this->postJson("api/courses/{$course->id}/lessons", $data);
@@ -89,18 +94,22 @@ class LessonEndpointTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Lesson created successfully')
             ->assertJsonPath('data.title', $data['title'])
-            ->assertJsonPath('data.content', $data['content']);
+            ->assertJsonPath('data.content', null)
+            ->assertJsonPath('data.video_url', null)
+            ->assertJsonPath('data.order', null);
 
         $this->assertDatabaseHas('lessons', [
             'title' => $data['title'],
-            'content' => $data['content'],
+            'content' => null,
+            'video_url' => null,
+            'order' => 0,
             'course_id' => $course->id,
             'created_by' => $this->user->id
         ]);
     }
 
     #[Test]
-    public function can_update_lesson_with_content(): void
+    public function can_update_lesson_with_content_video_url_and_order(): void
     {
         $course = Course::factory()->create();
 
@@ -108,7 +117,9 @@ class LessonEndpointTest extends TestCase
 
         $data = [
             'title' => fake()->sentence(),
-            'content' => fake()->paragraph()
+            'content' => fake()->paragraph(),
+            'video_url' => fake()->url(),
+            'order' => fake()->numberBetween(0, 100),
         ];
 
         $response = $this->putJson("api/lessons/{$lesson->id}", $data);
@@ -118,17 +129,21 @@ class LessonEndpointTest extends TestCase
             ->assertJsonPath('message', 'Lesson updated successfully')
             ->assertJsonPath('data.title', $data['title'])
             ->assertJsonPath('data.content', $data['content'])
+            ->assertJsonPath('data.video_url', $data['video_url'])
+            ->assertJsonPath('data.order', $data['order'])
             ->assertJsonPath('data.course_id', $course->id);
 
         $this->assertDatabaseHas('lessons', [
             'title' => $data['title'],
             'content' => $data['content'],
+            'video_url' => $data['video_url'],
+            'order' => $data['order'],
             'course_id' => $course->id,
         ]);
     }
 
     #[Test]
-    public function can_update_lesson_without_content(): void
+    public function can_update_lesson_without_content_video_url_and_order(): void
     {
         $course = Course::factory()->create();
 
@@ -136,7 +151,6 @@ class LessonEndpointTest extends TestCase
 
         $data = [
             'title' => fake()->sentence(),
-            'content' => null
         ];
 
         $response = $this->putJson("api/lessons/{$lesson->id}", $data);
@@ -145,12 +159,16 @@ class LessonEndpointTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('message', 'Lesson updated successfully')
             ->assertJsonPath('data.title', $data['title'])
-            ->assertJsonPath('data.content', $data['content'])
+            ->assertJsonPath('data.content', $lesson->content)
+            ->assertJsonPath('data.video_url', $lesson->video_url)
+            ->assertJsonPath('data.order', (int) $lesson->order)
             ->assertJsonPath('data.course_id', $course->id);
 
         $this->assertDatabaseHas('lessons', [
             'title' => $data['title'],
-            'content' => $data['content'],
+            'content' => $lesson->content,
+            'video_url' => $lesson->video_url,
+            'order' => (int) $lesson->order,
             'course_id' => $course->id,
         ]);
     }

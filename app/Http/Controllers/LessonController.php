@@ -58,4 +58,26 @@ class LessonController extends Controller
             'data' => null
         ]);
     }
+
+    public function markCompleted(Request $request, Lesson $lesson)
+    {
+        $userId = $request->user()->id;
+        $this->lessonService->markCompleted($lesson, $userId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lesson marked as completed',
+        ]);
+    }
+
+    public function unmarkCompleted(Request $request, Lesson $lesson)
+    {
+        $userId = $request->user()->id;
+        $this->lessonService->unmarkCompleted($lesson, $userId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lesson unmarked as completed',
+        ]);
+    }
 }
