@@ -11,6 +11,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class CourseEndpointTest extends TestCase
 {
@@ -49,12 +51,14 @@ class CourseEndpointTest extends TestCase
     #[Test]
     public function can_create_course_with_description_and_thumbnail(): void
     {
+        Storage::fake('local');
+
         $category = Category::factory()->create();
 
         $data = [
             'title' => fake()->name(),
             'description' => fake()->text(),
-            'thumbnail' => fake()->url(),
+            'thumbnail' => UploadedFile::fake()->image('thumbnail.jpg'),
             'category_id' => $category->id,
             'status' => fake()->randomElement(['draft', 'published']),
             'created_by' => User::factory(),
@@ -122,12 +126,14 @@ class CourseEndpointTest extends TestCase
     #[Test]
     public function can_update_course_with_description_and_thumbnail(): void
     {
+        Storage::fake('local');
+
         $category = Category::factory()->create();
 
         $data = [
             'title' => fake()->name(),
             'description' => fake()->text(),
-            'thumbnail' => fake()->url(),
+            'thumbnail' => UploadedFile::fake()->image('thumbnail.jpg'),
             'category_id' => $category->id,
             'status' => fake()->randomElement(['draft', 'published']),
         ];

@@ -28,10 +28,16 @@ class CourseController extends Controller
 
     public function store(StoreCourseRequest $request)
     {
-        $course = $this->courseService->store([
-            ...$request->validated(),
-            'created_by' => Auth::user()->id
-        ]);
+        $data = $request->validated();
+
+        // Upload thumbnail jika ada
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails');
+        }
+
+        $data['created_by'] = Auth::user()->id;
+
+        $course = $this->courseService->store($data);
 
         return response()->json([
             'success' => true,
@@ -51,7 +57,13 @@ class CourseController extends Controller
 
     public function update(Course $course, UpdateCourseRequest $request)
     {
-        $course = $this->courseService->update($course, $request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('thumbnail')) {
+            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails');
+        }
+
+        $course = $this->courseService->update($course, $data);
 
         return response()->json([
             'success' => true,
